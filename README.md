@@ -201,9 +201,13 @@ outputs/figures/detection_comparison.png
 
 传统机器学习不需要 GPU。ResNet50、MobileNetV2、YOLOv8 正式训练建议开 GPU。
 
-最低可用：8GB 显存，`batch=16` 或更低。
+最低可用：8GB 显存，`batch=8` 或更低。
 
-更舒服：12GB 以上显存，`yolov8s`、ResNet50 会更稳。
+推荐开卡：RTX 3090 24GB、RTX 4090 24GB、A10 24GB 这一档。NEU-DET 图像只有 200x200，训练 YOLOv8n/s、ResNet50、MobileNetV2 都很宽裕。
+
+省钱可用：RTX 3060 12GB、T4 16GB。把 YOLO batch 调到 8-16 即可。
+
+环境建议：Ubuntu + Python 3.10 + PyTorch 2.x + CUDA 11.8 或 12.1。AutoDL 里直接选择 PyTorch 镜像即可，不需要 TensorFlow。
 
 如果只是先检查代码流程，可以全程 CPU 跑 1-2 个 epoch。
 
@@ -213,6 +217,12 @@ outputs/figures/detection_comparison.png
 git clone <your-repo-url>
 cd steel-defect-detection
 bash scripts/autodl_setup_and_train.sh
+```
+
+本项目当前 GitHub 仓库：
+
+```text
+https://github.com/Sinking-tenderness/neu-det-steel-defect-detection
 ```
 
 数据目录和训练产物默认不进 Git；在 AutoDL 上按上面的命令重新下载和生成即可。

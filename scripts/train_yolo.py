@@ -56,7 +56,14 @@ def main() -> None:
         target.write_bytes(best.read_bytes())
         print(f"Copied best weights to {target}")
 
-    metrics = model.val(data=str(args.data), split="test", imgsz=args.imgsz, device=device)
+    metrics = model.val(
+        data=str(args.data),
+        split="test",
+        imgsz=args.imgsz,
+        device=device,
+        project=str(args.project),
+        name=f"{run_name}_test",
+    )
     row = {
         "model": run_name,
         "precision": float(metrics.box.mp),
@@ -72,4 +79,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
