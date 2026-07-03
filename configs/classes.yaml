@@ -1,0 +1,21 @@
+names:
+  0: crazing
+  1: inclusion
+  2: patches
+  3: pitted_surface
+  4: rolled-in_scale
+  5: scratches
+aliases:
+  Cr: crazing
+  In: inclusion
+  Pa: patches
+  PS: pitted_surface
+  RS: rolled-in_scale
+  Sc: scratches
+  crazing: crazing
+  inclusion: inclusion
+  patches: patches
+  pitted_surface: pitted_surface
+  rolled-in_scale: rolled-in_scale
+  scratches: scratches
+
