@@ -216,7 +216,7 @@ outputs/figures/detection_comparison.png
 ```bash
 git clone <your-repo-url>
 cd steel-defect-detection
-bash scripts/autodl_setup_and_train.sh
+bash scripts/autodl_prepare.sh
 ```
 
 本项目当前 GitHub 仓库：
@@ -226,3 +226,9 @@ https://github.com/Sinking-tenderness/neu-det-steel-defect-detection
 ```
 
 数据目录和训练产物默认不进 Git；在 AutoDL 上按上面的命令重新下载和生成即可。
+
+开卡后正式训练：
+
+```bash
+bash scripts/autodl_train.sh
+```
