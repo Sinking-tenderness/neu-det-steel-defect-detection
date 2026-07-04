@@ -21,16 +21,38 @@ def filter_detection_runs(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty or "model" not in df:
         return df
     df = df.copy()
+    for column, default in {
+        "imgsz": pd.NA,
+        "attention": "none",
+        "attention_layers": "",
+        "loss_preset": "default",
+        "box_gain": 7.5,
+        "cls_gain": 0.5,
+        "dfl_gain": 1.5,
+    }.items():
+        if column not in df:
+            df[column] = default
     model = df["model"].astype(str)
     keep = model.str.contains("yolo", case=False, na=False)
     keep &= ~model.str.contains("cpu_smoke", case=False, na=False)
     df = df[keep]
+    legacy_224 = df["model"].isin(["yolov8n_neu", "yolov8s_neu"])
+    df.loc[legacy_224 & df["imgsz"].isna(), "imgsz"] = 224
+    df["attention"] = df["attention"].fillna("none")
+    df["loss_preset"] = df["loss_preset"].fillna("default")
+    df["box_gain"] = df["box_gain"].fillna(7.5)
+    df["cls_gain"] = df["cls_gain"].fillna(0.5)
+    df["dfl_gain"] = df["dfl_gain"].fillna(1.5)
     preferred_order = [
         "yolov8n_neu",
         "yolov8s_neu",
         "yolo11n_neu",
         "yolo11s_neu",
+        "yolo11n_img256",
         "yolo11n_img320",
+        "yolo11n_ema224",
+        "yolo11n_loss224",
+        "yolo11n_ema_loss224",
         "yolo11n_ema_loss320",
     ]
     order = {name: idx for idx, name in enumerate(preferred_order)}

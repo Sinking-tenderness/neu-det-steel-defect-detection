@@ -4,10 +4,12 @@ set -euo pipefail
 PYTHON_BIN="${PYTHON_BIN:-python}"
 export PYTHONPATH="$(pwd):${PYTHONPATH:-}"
 
-# Existing YOLOv8 runs can stay in runs/detect. These runs add the
-# detection-focused ablation used in the report:
-# YOLOv8n baseline -> YOLO11n -> YOLO11n at higher resolution ->
-# YOLO11n + EMA attention + small-defect loss gains.
+# Existing YOLOv8n/YOLOv8s runs were trained at imgsz=224 by autodl_train.sh.
+# Keep the detection ablation orthogonal for the report:
+# 1) architecture comparison at imgsz=224
+# 2) resolution comparison for YOLO11n
+# 3) EMA attention gain at fixed YOLO11n@224
+# 4) small-defect loss gain at fixed YOLO11n@224
 "$PYTHON_BIN" scripts/train_yolo.py \
   --model yolo11n.pt \
   --epochs 100 \
@@ -29,11 +31,49 @@ export PYTHONPATH="$(pwd):${PYTHONPATH:-}"
 "$PYTHON_BIN" scripts/train_yolo.py \
   --model yolo11n.pt \
   --epochs 100 \
+  --imgsz 256 \
+  --batch 32 \
+  --device 0 \
+  --name yolo11n_img256 \
+  --loss-preset default
+
+"$PYTHON_BIN" scripts/train_yolo.py \
+  --model yolo11n.pt \
+  --epochs 100 \
   --imgsz 320 \
   --batch 32 \
   --device 0 \
   --name yolo11n_img320 \
   --loss-preset default
+
+"$PYTHON_BIN" scripts/train_yolo.py \
+  --model yolo11n.pt \
+  --epochs 100 \
+  --imgsz 224 \
+  --batch 32 \
+  --device 0 \
+  --name yolo11n_ema224 \
+  --attention ema \
+  --loss-preset default
+
+"$PYTHON_BIN" scripts/train_yolo.py \
+  --model yolo11n.pt \
+  --epochs 100 \
+  --imgsz 224 \
+  --batch 32 \
+  --device 0 \
+  --name yolo11n_loss224 \
+  --loss-preset small_defect
+
+"$PYTHON_BIN" scripts/train_yolo.py \
+  --model yolo11n.pt \
+  --epochs 100 \
+  --imgsz 224 \
+  --batch 32 \
+  --device 0 \
+  --name yolo11n_ema_loss224 \
+  --attention ema \
+  --loss-preset small_defect
 
 "$PYTHON_BIN" scripts/train_yolo.py \
   --model yolo11n.pt \
