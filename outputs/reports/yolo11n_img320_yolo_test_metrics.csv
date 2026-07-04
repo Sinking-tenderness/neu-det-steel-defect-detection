@@ -1,0 +1,2 @@
+model,precision,recall,map50,map50_95,imgsz,attention,attention_layers,loss_preset,box_gain,cls_gain,dfl_gain
+yolo11n_img320,0.7317815688313171,0.6993022828279378,0.7577447031062633,0.41511392744508446,320,none,,default,7.5,0.5,1.5

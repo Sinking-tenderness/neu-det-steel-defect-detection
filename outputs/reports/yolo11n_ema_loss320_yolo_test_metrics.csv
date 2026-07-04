@@ -1,0 +1,2 @@
+model,precision,recall,map50,map50_95,imgsz,attention,attention_layers,loss_preset,box_gain,cls_gain,dfl_gain
+yolo11n_ema_loss320,0.675218058590326,0.733473486294244,0.753404582807473,0.4175914862813952,320,ema,"4,6,8",small_defect,9.0,0.35,2.0

@@ -17,6 +17,38 @@ def read_csvs(pattern: str) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
+def filter_detection_runs(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty or "model" not in df:
+        return df
+    df = df.copy()
+    model = df["model"].astype(str)
+    keep = model.str.contains("yolo", case=False, na=False)
+    keep &= ~model.str.contains("cpu_smoke", case=False, na=False)
+    df = df[keep]
+    preferred_order = [
+        "yolov8n_neu",
+        "yolov8s_neu",
+        "yolo11n_neu",
+        "yolo11s_neu",
+        "yolo11n_img320",
+        "yolo11n_ema_loss320",
+    ]
+    order = {name: idx for idx, name in enumerate(preferred_order)}
+    df["_order"] = df["model"].map(order).fillna(len(order))
+    return df.sort_values(["_order", "model"]).drop(columns="_order").reset_index(drop=True)
+
+
+def filter_classification_runs(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty or "model" not in df:
+        return df
+    df = df.copy()
+    model = df["model"].astype(str)
+    keep = model.isin(["svm", "random_forest", "knn", "resnet50"])
+    columns = ["model", "split", "accuracy", "macro_f1", "weighted_f1", "seconds_per_image"]
+    available_columns = [col for col in columns if col in df.columns]
+    return df[keep][available_columns].reset_index(drop=True)
+
+
 def plot_classification(df: pd.DataFrame, out_path: Path) -> None:
     test_df = df[df["split"] == "test"].copy()
     if test_df.empty:
@@ -66,14 +98,13 @@ def main() -> None:
     traditional = read_csvs("traditional_metrics.csv")
     classifiers = read_csvs("*_metrics.csv")
     if not classifiers.empty:
-        classifiers = classifiers[
-            ~classifiers.get("model", pd.Series(dtype=str)).astype(str).str.contains("yolo", case=False, na=False)
-        ]
-        classifiers = classifiers[classifiers.get("model", pd.Series(dtype=str)) != "svm"]
-        classifiers = classifiers[classifiers.get("model", pd.Series(dtype=str)) != "random_forest"]
-        classifiers = classifiers[classifiers.get("model", pd.Series(dtype=str)) != "knn"]
-    classification = pd.concat([traditional, classifiers], ignore_index=True) if not traditional.empty or not classifiers.empty else pd.DataFrame()
-    yolo = read_csvs("*_yolo_test_metrics.csv")
+        classifiers = classifiers[classifiers.get("model", pd.Series(dtype=str)) == "resnet50"]
+    classification = (
+        filter_classification_runs(pd.concat([traditional, classifiers], ignore_index=True))
+        if not traditional.empty or not classifiers.empty
+        else pd.DataFrame()
+    )
+    yolo = filter_detection_runs(read_csvs("*_yolo_test_metrics.csv"))
 
     if not classification.empty:
         classification.to_csv(REPORTS_DIR / "classification_comparison.csv", index=False)
