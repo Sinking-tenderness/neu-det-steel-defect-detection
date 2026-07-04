@@ -48,6 +48,7 @@ def main() -> None:
         fliplr=0.5,
         mosaic=0.5,
         close_mosaic=10,
+        amp=False,
     )
 
     best = Path(results.save_dir) / "weights" / "best.pt"
